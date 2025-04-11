@@ -45,6 +45,10 @@ async function stopSession(sessionId: number){
   await refreshSessions();
 }
 
+async function navigate(path: string){
+  await navigateTo(path)
+}
+
 </script>
 
 <template>
@@ -86,10 +90,10 @@ async function stopSession(sessionId: number){
     />
   </div>
   <div class="flex flex-col gap-2">
-    <NuxtLink
+    <div
       v-for="session in sessions"
-      :to="`/sessions/${session.id}`"
       class="border border-gray-600 rounded-md p-2"
+      @click="navigate(`/sessions/${session.id}`)"
     >
       <div class="flex justify-between items-center mb-1">
         <span>
@@ -131,7 +135,7 @@ async function stopSession(sessionId: number){
           />
         </div>
       </div>
-    </NuxtLink>
+    </div>
   </div>
 </div>
 </template>

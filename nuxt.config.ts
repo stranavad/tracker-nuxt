@@ -6,7 +6,7 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   runtimeConfig: {
     public: {
-      apiUrl: 'http://localhost:8080'
+      apiUrl: 'https://tracker-be.gandalfthegray.org'
     }
   },
   dayjs: {
