@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import {apiGetSessionById, apiResetSessionTracker} from "~/api/session";
-import type {TrackerRecordResponse} from "~/types";
 import {getTimeDifference} from "~/utils/time";
 import {trackerColors, trackerColorsMap, trackerColorStrokeMap} from "~/data/colors";
 import {apiUpdateTracker} from "~/api/tracker";
+import type {TrackerRecord} from "~/types";
 
 const route = useRoute();
 const sessionId = Number(route.params.id);
@@ -46,11 +46,13 @@ function getInitialCoordinates(){
   }
 
   const tracker = session.value.trackers[0];
-  if(!tracker.latestRecord){
+  const latestRecord = tracker.records.at(-1)
+
+  if(!latestRecord){
     return
   }
 
-  initialCoordinates.value = [tracker.latestRecord.lat, tracker.latestRecord.long]
+  initialCoordinates.value = [latestRecord.lat, latestRecord.long]
 }
 
 async function resetSessionTracker(trackerId: string){
@@ -67,7 +69,7 @@ async function updateTrackerColor(trackerId: string, color: string): Promise<voi
   await refreshSession()
 }
 
-function calculateTotalDistance(records: TrackerRecordResponse[]): number {
+function calculateTotalDistance(records: TrackerRecord[]): number {
   if(!globalL.value){
     return 0
   }
@@ -95,7 +97,7 @@ function onCreated(){
 
 onCreated();
 
-function getTrackerCoordinates(records: TrackerRecordResponse[]): [number, number][]{
+function getTrackerCoordinates(records: TrackerRecord[]): [number, number][]{
   return records.map(r => ([r.lat, r.long]))
 }
 
@@ -140,8 +142,8 @@ onUnmounted(() => {
         v-if="globalL"
       >
         <LMarker
-          v-for="tracker in session.trackers.filter(t => !!t.latestRecord && trackerVisibilityMap[t.id])"
-          :lat-lng="[tracker.latestRecord!.lat, tracker.latestRecord!.long]"
+          v-for="tracker in session.trackers.filter(t => !!t.records.length && trackerVisibilityMap[t.id])"
+          :lat-lng="[tracker.records.at(-1)!.lat, tracker.records.at(-1)!.long]"
           :icon='globalL.divIcon({
             className: "marker-icon",
             html: `<div style="width: 15px; height: 15px; border: 2px solid black; background-color: ${tracker.name}; border-radius: 50%;"/>`,
@@ -197,7 +199,7 @@ onUnmounted(() => {
         </div>
       </div>
       <div
-        v-if="tracker.firstRecord"
+        v-if="tracker.records.length"
         class="flex flex-col text-xs text-gray-400"
       >
         <span>
@@ -205,19 +207,13 @@ onUnmounted(() => {
         </span>
         <span
         >
-          First seen: {{$dayjs(tracker.firstRecord.createdAt).format('DD. MM. HH:mm:ss')}}
+          First seen: {{$dayjs(tracker.records[0].createdAt).format('DD. MM. HH:mm:ss')}}
         </span>
         <span>
-          Last seen: {{$dayjs(tracker.latestRecord.createdAt).format('DD. MM. HH:mm:ss')}}
+          Last seen: {{$dayjs(tracker.records.at(-1)!.createdAt).format('DD. MM. HH:mm:ss')}}
         </span>
         <span>
-          Duration: {{getTimeDifference(tracker.latestRecord.createdAt, tracker.firstRecord.createdAt)}}
-        </span>
-        <span>
-          Rssi: {{tracker.latestRecord.rssi}}
-        </span>
-        <span>
-          Snr: {{tracker.latestRecord.snr}}
+          Duration: {{getTimeDifference(tracker.records.at(-1)!.createdAt, tracker.records[0].createdAt)}}
         </span>
       </div>
     </div>

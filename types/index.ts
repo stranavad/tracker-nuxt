@@ -22,15 +22,11 @@ export interface TrackerRecord {
 	deletedAt: string | null;
 	lat: number;
 	long: number;
-	rssi: number;
-	snr: number;
 	trackerId: string;
 	sessionId: number;
 }
 
-export type TrackerRecordResponse = Pick<TrackerRecord, 'lat' | 'long'>;
-
-export type TrackerResponse = Tracker & {latestRecord: null, firstRecord: null, records: TrackerRecordResponse[]} | Tracker & {latestRecord: TrackerRecord, firstRecord: TrackerRecord, records: TrackerRecordResponse[]}
+export type TrackerResponse = Tracker & {records: TrackerRecord[]}
 
 
 export interface SessionResponse extends Session {
