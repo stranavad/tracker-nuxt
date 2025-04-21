@@ -12,7 +12,8 @@ export interface Session {
 
 export interface Tracker {
 	id: string;
-	name: ColorName;
+	name: string;
+	color: ColorName;
 }
 
 export interface TrackerRecord {
@@ -24,11 +25,29 @@ export interface TrackerRecord {
 	long: number;
 	trackerId: string;
 	sessionId: number;
+	trace: string;
+	voltage: number;
+	timestamp: number;
 }
 
-export type TrackerResponse = Tracker & {records: TrackerRecord[]}
-
+export interface TrackerResponse extends Tracker {
+	records: TrackerRecord[];
+}
 
 export interface SessionResponse extends Session {
 	trackers: TrackerResponse[]
+}
+
+
+export interface Device {
+	id: string;
+	name: string;
+	color: string;
+	records: DeviceHealth[]
+}
+
+export interface DeviceHealth {
+	trace: string;
+	timestamp: number;
+	voltage: number;
 }

@@ -8,6 +8,7 @@ import {
 } from "~/api/session";
 import {getTimeDifference} from "~/utils/time";
 import type {FormSubmitEvent} from "#ui/types";
+import type {Device} from "~/types";
 
 const {data: sessions, refresh: refreshSessions} = await useAsyncData(apiListSessions)
 if(!sessions.value){
@@ -48,7 +49,6 @@ async function stopSession(sessionId: number){
 async function navigate(path: string){
   await navigateTo(path)
 }
-
 </script>
 
 <template>
