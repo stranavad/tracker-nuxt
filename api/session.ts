@@ -52,3 +52,16 @@ export function apiResetSessionTracker(sessionId: number, trackerId: string): Pr
 		}
 	})
 }
+
+
+export function apiUpdateTeamToTracker(sessionId: number, teamId: number, trackerId: string): Promise<void>{
+	const {$api} = useNuxtApp()
+	return $api(`/session/team-to-tracker`, {
+		method: 'POST',
+		body: {
+			sessionId,
+			trackerId,
+			teamId
+		}
+	})
+}

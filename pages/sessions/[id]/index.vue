@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import {apiGetSessionById, apiResetSessionTracker} from "~/api/session";
+import {apiGetSessionById, apiResetSessionTracker, apiUpdateTeamToTracker} from "~/api/session";
 import {getTimeDifference} from "~/utils/time";
 import {trackerColors, trackerColorsMap, trackerColorStrokeMap} from "~/data/colors";
 import {apiUpdateTracker} from "~/api/tracker";
-import type {TrackerRecord} from "~/types";
+import type {Group, TrackerRecord} from "~/types";
+import {apiGetGroups} from "~/api/manage";
 
 const route = useRoute();
 const sessionId = Number(route.params.id);
@@ -15,9 +16,10 @@ if(isNaN(sessionId)){
   })
 }
 
-const {data: session, refresh: refreshSession} = await useAsyncData(() => apiGetSessionById(sessionId));
+const {data: session, refresh: refreshSession} = await useAsyncData(`session-data-${sessionId}`,() => apiGetSessionById(sessionId));
+const {data: groups, refresh: refreshGroups} = await useAsyncData<Group[]>('groups', apiGetGroups)
 
-if(!session.value){
+if(!session.value || !groups.value){
   throw createError({
     fatal: true,
     message: "Session not found"
@@ -45,7 +47,7 @@ function getInitialCoordinates(){
     return
   }
 
-  const tracker = session.value.trackers[0];
+  const tracker = session.value.trackers[0]!;
   const latestRecord = tracker.records.at(-1)
 
   if(!latestRecord){
@@ -102,6 +104,12 @@ function getTrackerCoordinates(records: TrackerRecord[]): [number, number][]{
 }
 
 
+async function updateTeamToTracker(trackerId: string, teamId: number){
+  await apiUpdateTeamToTracker(sessionId, teamId, trackerId)
+  await refreshSession()
+}
+
+
 let refreshInterval: NodeJS.Timeout
 
 onMounted(() => {
@@ -121,7 +129,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-<div v-if="session">
+<div v-if="session && groups">
   <span class="text-lg font-semibold">
     {{session.name}}
   </span>
@@ -200,6 +208,18 @@ onUnmounted(() => {
           />
           <UButton size="xs" color="error" label="Start/Reset" @click="resetSessionTracker(tracker.id)"/>
         </div>
+      </div>
+      <div class="mb-2">
+        <span class="text-xs text-slate-300">Team:</span>
+        <USelect
+          label-key="name"
+          value-key="id"
+          class="w-[150px] ml-2"
+          size="sm"
+          :model-value="tracker.team?.id || 0"
+          :items="groups.map(group => group.teams).flat()"
+          @update:model-value="updateTeamToTracker(tracker.id, $event)"
+        />
       </div>
       <div
         v-if="tracker.records.length"

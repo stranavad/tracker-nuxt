@@ -31,6 +31,7 @@ export interface TrackerRecord {
 }
 
 export interface TrackerResponse extends Tracker {
+	team: Team | null;
 	records: TrackerRecord[];
 }
 
