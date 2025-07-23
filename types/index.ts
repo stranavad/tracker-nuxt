@@ -51,3 +51,21 @@ export interface DeviceHealth {
 	timestamp: number;
 	voltage: number;
 }
+
+/* MANAGE */
+export interface Group {
+	id: number;
+	name: string;
+	createdAt: string;
+	updatedAt: string;
+	deletedAt: string | null;
+	teams: Team[]
+}
+
+export interface Team {
+	id: number;
+	name: string;
+	createdAt: string;
+	updatedAt: string;
+	deletedAt: string | null;
+}

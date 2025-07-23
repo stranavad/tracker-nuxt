@@ -146,12 +146,14 @@ onUnmounted(() => {
           :lat-lng="[tracker.records.at(-1)!.lat, tracker.records.at(-1)!.long]"
           :icon='globalL.divIcon({
             className: "marker-icon",
-            html: `<div style="width: 15px; height: 15px; border: 2px solid black; background-color: ${tracker.name}; border-radius: 50%;"/>`,
+            html: `<div style="width: 15px; height: 15px; border: 2px solid black; background-color: ${tracker.color}; border-radius: 50%;"/>`,
             iconSize: [15, 15],
             iconAnchor: [7.5, 7.5]
           })'
         >
-          <LPopup>{{tracker.id}}/{{tracker.name}}</LPopup>
+          <LPopup>
+            {{tracker.name ? tracker.name : tracker.id}}
+          </LPopup>
         </LMarker>
       </ClientOnly>
       <LPolyline
@@ -159,7 +161,7 @@ onUnmounted(() => {
         :key="`${tracker.id}-${tracker.name}`"
         dash-array="4 10"
         :weight="2"
-        :class-name="trackerColorStrokeMap[tracker.name]"
+        :color="tracker.color"
         :lat-lngs="getTrackerCoordinates(tracker.records)"
       />
     </LMap>
@@ -172,10 +174,11 @@ onUnmounted(() => {
       <div class="flex items-center justify-between">
         <div class="flex items-center mb-2">
           <span class="text-sm mr-2">
-            #{{tracker.id}}
+            <span class="text-xs text-slate-300">#{{tracker.id}}</span>
+            {{tracker.name}}
           </span>
           <UPopover>
-            <div class="w-4 h-4 rounded-full" :class="trackerColorsMap[tracker.name]"/>
+            <div class="w-4 h-4 rounded-full" :style="{backgroundColor: tracker.color}"/>
             <template #content>
               <div class="p-2 flex gap-2">
                 <div
