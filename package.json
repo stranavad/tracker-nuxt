@@ -14,6 +14,7 @@
     "@nuxtjs/leaflet": "^1.2.6",
     "dayjs-nuxt": "^2.1.11",
     "nuxt": "^4.0.1",
+    "oxc-parser": "^0.77.3",
     "vue": "latest",
     "vue-router": "latest",
     "zod": "^3.24.3"
