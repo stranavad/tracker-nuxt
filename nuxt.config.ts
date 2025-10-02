@@ -1,7 +1,12 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
-  modules: ['@nuxt/ui', 'dayjs-nuxt', '@nuxtjs/leaflet'],
+  modules: [
+    '@nuxt/ui',
+    'dayjs-nuxt',
+    '@nuxtjs/leaflet',
+    '@vueuse/nuxt'
+  ],
   css: ['~/assets/css/main.css'],
   devtools: { enabled: false },
   runtimeConfig: {

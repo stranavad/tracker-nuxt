@@ -24,6 +24,7 @@ const editingSessionId = ref<number | null>(null)
 const newSessionState = ref<CreateSessionDto>({
   name: ''
 })
+const showCreateSession = ref(false);
 async function onModalSubmit(event: FormSubmitEvent<CreateSessionDto>){
   const data = event.data;
 
@@ -38,6 +39,12 @@ async function onModalSubmit(event: FormSubmitEvent<CreateSessionDto>){
   modalOpened.value = false;
 
   await refreshSessions()
+}
+
+async function onSessionCreate(event: FormSubmitEvent<CreateSessionDto>): Promise<void>{
+  await apiCreateSession(event.data);
+  await refreshSessions();
+  showCreateSession.value = false
 }
 
 /* Stop session */
@@ -81,61 +88,86 @@ async function navigate(path: string){
     </span>
     <UButton
       size="sm"
-      label="Create"
-      @click="
-        editingSessionId = null;
-        newSessionState.name = '';
-        modalOpened = true;
-      "
+      label="Create new group"
+      variant="soft"
+      :disabled="showCreateSession"
+      @click="showCreateSession = true"
     />
   </div>
-  <div class="flex flex-col gap-2">
-    <div
-      v-for="session in sessions"
-      class="border border-gray-600 rounded-md p-2"
-      @click="navigate(`/sessions/${session.id}`)"
-    >
-      <div class="flex justify-between items-center mb-1">
-        <span>
-          <span class="text-sm text-gray-400">#{{session.id}}</span>
-          {{session.name}}
-        </span>
-        <UBadge v-if="!session.endTime" class="ml-2" size="sm">Active</UBadge>
-      </div>
-      <div class="text-xs">
-        <div>
-          <span class="mr-2">Start:</span>
-          <span class="text-gray-400">{{$dayjs(session.startTime).format('DD. MM. HH:mm:ss')}}</span>
-        </div>
-        <div v-if="session.endTime">
-          <span class="mr-2">End:</span>
-          <span class="text-gray-400">{{$dayjs(session.endTime).format('DD. MM. HH:mm:ss')}}</span>
-        </div>
-        <div v-if="session.endTime">
-          <span class="mr-2">Duration:</span>
-          <span class="text-gray-400">{{getTimeDifference(session.endTime, session.startTime)}}</span>
-        </div>
-        <div class="flex gap-2 justify-between mt-2">
-          <UButton
-            color="info"
-            label="Update"
-            size="xs"
-            @click.stop="
-              editingSessionId = session.id;
-              newSessionState.name = session.name;
-              modalOpened = true
-            "
-          />
-          <UButton
-            v-if="!session.endTime"
-            color="error"
-            label="Stop"
-            size="xs"
-            @click.stop="stopSession(session.id)"
-          />
-        </div>
-      </div>
-    </div>
+  <div class="flex flex-col gap-4">
+      <UCard
+        v-if="showCreateSession"
+      >
+          <template #header>
+            <span>
+                Create new session
+            </span>
+          </template>
+          <UForm
+            class="flex gap-2"
+            :state="newSessionState"
+            :schema="createSessionSchema"
+            @submit="onSessionCreate"
+          >
+              <UFormField name="name">
+                  <UInput v-model="newSessionState.name" placeholder="name"/>
+              </UFormField>
+              <UButton label="Create" variant="soft" type="submit"/>
+              <UButton label="Cancel" variant="soft" color="error" @click="showCreateSession = false"/>
+          </UForm>
+      </UCard>
+      <UCard
+        v-for="session in sessions"
+        @click="navigate(`/sessions/${session.id}`)"
+      >
+          <template #header>
+            <div class="flex justify-between items-center">
+                <div class="flex gap-2">
+                    <span>{{session.name}}</span>
+                    <UBadge v-if="!session.endTime" variant="soft">Active</UBadge>
+                </div>
+                <div class="flex gap-2">
+                    <UButton
+                        icon="i-heroicons-pencil-square"
+                        color="info"
+                        variant="soft"
+                        @click.stop="
+                          editingSessionId = session.id;
+                          newSessionState.name = session.name;
+                          modalOpened = true
+                        "
+                    />
+                    <UButton
+                        icon="i-heroicons-stop"
+                        color="warning"
+                        variant="soft"
+                        :disabled="!!session.endTime"
+                        @click.stop="stopSession(session.id)"
+                    />
+                    <UButton
+                        icon="i-heroicons-trash"
+                        variant="soft"
+                        color="error"
+                        @click.stop="stopSession(session.id)"
+                    />
+                </div>
+            </div>
+          </template>
+          <div class="text-sm">
+            <div>
+                <span class="mr-2">Start:</span>
+                <span class="text-gray-400">{{$dayjs(session.startTime).format('DD. MM. HH:mm:ss')}}</span>
+            </div>
+            <div v-if="session.endTime">
+                <span class="mr-2">End:</span>
+                <span class="text-gray-400">{{$dayjs(session.endTime).format('DD. MM. HH:mm:ss')}}</span>
+            </div>
+            <div v-if="session.endTime">
+                <span class="mr-2">Duration:</span>
+                <span class="text-gray-400">{{getTimeDifference(session.endTime, session.startTime)}}</span>
+            </div>
+          </div>
+      </UCard>
   </div>
 </div>
 </template>

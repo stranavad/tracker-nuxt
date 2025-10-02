@@ -42,13 +42,15 @@ async function resetDevice(deviceId: string){}
   class="flex flex-col gap-2"
 >
   <span class="block mb-2 text-lg font-semibold">Trackers</span>
-  <DeviceCard
-    v-for="tracker in trackers"
-    :key="tracker.id"
-    :device="tracker"
-    @update="updateTracker($event, tracker.id)"
-    @reset="resetTracker(tracker.id)"
-  />
+  <div class="flex flex-wrap gap-2">
+    <DeviceCard
+        v-for="tracker in trackers"
+        :key="tracker.id"
+        :device="tracker"
+        @update="updateTracker($event, tracker.id)"
+        @reset="resetTracker(tracker.id)"
+    />
+  </div>
 </div>
 <div
   v-if="devices"

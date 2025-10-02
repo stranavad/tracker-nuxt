@@ -31,23 +31,28 @@ const modalOpened = ref(false);
   :device="device"
   @submit="modalOpened = false; emit('update', $event)"
 />
-<div
-  class="border border-gray-600 rounded-md p-2"
+<UCard
+    class="min-w-[250px]"
 >
-  <div>
-    <span class="text-xs text-slate-300 mr-2">#{{device.id}}</span>
-    <span class="mr-2">{{device.name}}</span>
-    <ColorBadge :color="device.color"/>
-  </div>
-  <div v-if="lastRecord" class="flex flex-col text-sm text-slate-300">
-    <span>Last record:</span>
-    <span>Last seen: {{$dayjs(lastRecord.timestamp).format('DD. MM. HH:mm:ss')}}</span>
-    <span>Voltage: {{lastRecord.voltage}}</span>
-    <span>Trace: {{lastRecord.trace}}</span>
-  </div>
-  <div class="flex gap-2 mt-4">
-    <UButton size="xs" color="info" label="Update" @click="modalOpened = true"/>
-    <UButton size="xs" color="error" label="Delete history" @click="emit('reset')"/>
-  </div>
-</div>
+    <template #header>
+        <div class="flex justify-between items-center pb-1">
+            <div class="flex gap-2 items-center">
+                <!-- <ColorBadge :color="device.color"/> -->
+                <div class="h-[14px] w-[3px] rounded-md" :style="{backgroundColor: device.color || 'white'}"/>
+                <span>{{device.name}}</span>
+            </div>
+            <div class="flex gap-2">
+                <UButton icon="i-heroicons-pencil-square" variant="soft" @click="modalOpened = true"/>
+                <UButton icon="i-heroicons-trash" variant="soft" color="error" @click="emit('reset')"/>
+            </div>
+        </div>
+    </template>
+    <div class="flex flex-col text-sm">
+        <span>Id: {{device.id}}</span>
+        <span v-if="lastRecord">Last record:</span>
+        <span v-if="lastRecord">Last seen: {{$dayjs(lastRecord.timestamp).format('DD. MM. HH:mm:ss')}}</span>
+        <span v-if="lastRecord">Voltage: {{lastRecord.voltage}}</span>
+        <span v-if="lastRecord">Trace: {{lastRecord.trace}}</span>
+    </div>
+</UCard>
 </template>

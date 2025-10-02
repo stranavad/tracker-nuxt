@@ -10,10 +10,11 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@nuxt/ui": "^3.0.2",
+    "@nuxt/ui": "^4.0.1",
     "@nuxtjs/leaflet": "^1.2.6",
+    "@vueuse/nuxt": "^13.9.0",
     "dayjs-nuxt": "^2.1.11",
-    "nuxt": "^4.0.1",
+    "nuxt": "^4.1.2",
     "oxc-parser": "^0.77.3",
     "vue": "latest",
     "vue-router": "latest",
@@ -21,5 +22,8 @@
   },
   "engines": {
     "node": ">=22.0.0"
+  },
+  "overrides": {
+    "vite": "npm:rolldown-vite@latest"
   }
 }
