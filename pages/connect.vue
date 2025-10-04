@@ -1,24 +1,8 @@
 <script setup lang="ts">
-import z from 'zod';
+import {loraPresets} from '../data/lora'
+import {type  DeviceSettings, deviceSettingsSchema } from '~/api/connect';
 
-const deviceSettingsSchema = z.object({
-  deviceId: z.string(),
-  interval: z.number(),
-  display: z.boolean(),
-  encryption: z.boolean(),
-  encryptionKey: z.string(),
-  meshOwn: z.boolean(),
-  meshOther: z.boolean(),
-  hopLimit: z.number(),
-  loraFrequency: z.number(),
-  loraOutputPower: z.number(),
-  loraBandwidth: z.number(),
-  loraSpreadingFactor: z.number(),
-  loraCodingRate: z.number(),
-  loraPreambleLength: z.number(),
-})
-
-const deviceSettings = ref<z.infer<typeof deviceSettingsSchema>>({
+const deviceSettings = ref<DeviceSettings>({
   deviceId: "",
   interval: 15,
   display: true,
@@ -27,13 +11,30 @@ const deviceSettings = ref<z.infer<typeof deviceSettingsSchema>>({
   meshOwn: false,
   meshOther: false,
   hopLimit: 3,
-  loraFrequency: 868.25,
-  loraOutputPower: 27,
+  frequency: 868.25,
+  outputPower: 27,
   loraBandwidth: 0,
   loraSpreadingFactor: 12 ,
   loraCodingRate: 4,
   loraPreambleLength: 8,
 })
+
+const selectedLoraPreset = ref<string>('LongFast')
+
+function pickLoraPreset(presetLabel: string){
+  selectedLoraPreset.value = presetLabel;
+  const foundPreset = loraPresets.find((p) => p.label === presetLabel)
+
+  if(!foundPreset){
+    return
+  }
+
+  deviceSettings.value.loraBandwidth = foundPreset.loraBandwidth
+  deviceSettings.value.loraSpreadingFactor = foundPreset.loraSpreadingFactor
+  deviceSettings.value.loraSpreadingFactor = foundPreset.loraSpreadingFactor
+  deviceSettings.value.loraCodingRate = foundPreset.loraCodingRate
+  deviceSettings.value.loraPreambleLength = foundPreset.loraPreambleLength
+}
 </script>
 <template>
 <UForm
@@ -77,13 +78,25 @@ const deviceSettings = ref<z.infer<typeof deviceSettingsSchema>>({
         </UFormField>
     </div>
     <div class="flex flex-col gap-4 min-w-xl">
-        <span class="text-lg font-semibold">Lora settings</span>
+        <span class="text-lg font-semibold">Radio settings</span>
         <USeparator/>
         <UFormField label="Frequency (MHz)" name="loraFrequency">
-            <UInputNumber v-model="deviceSettings.loraFrequency" class="w-full"/>
+            <UInputNumber v-model="deviceSettings.frequency" class="w-full"/>
         </UFormField>
         <UFormField label="Output power (dBm)" name="loraOutputPower">
-            <UInputNumber v-model="deviceSettings.loraOutputPower" class="w-full"/>
+            <UInputNumber v-model="deviceSettings.outputPower" class="w-full"/>
+        </UFormField>
+    </div>
+    <div class="flex flex-col gap-4 min-w-xl">
+        <span class="text-lg font-semibold">Lora settings</span>
+        <USeparator/>
+        <UFormField label="Select Lora preset">
+            <USelect
+                value-key="label"
+                :model-value="selectedLoraPreset"
+                :items="loraPresets" class="w-full"
+                @update:model-value="pickLoraPreset"
+            />
         </UFormField>
         <UFormField label="Bandwidth" name="loraBandwidth">
             <UInputNumber v-model="deviceSettings.loraBandwidth" class="w-full"/>
